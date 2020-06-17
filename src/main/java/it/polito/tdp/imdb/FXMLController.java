@@ -7,6 +7,7 @@ package it.polito.tdp.imdb;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,30 +36,73 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
-
+    
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
-
+    	txtResult.clear();
+    	Actor actor = boxAttore.getValue();
+    	if(actor == null) {
+        	txtResult.clear();
+        	txtResult.appendText("Seleziona un attore!\n");;
+        	return ;
+    	}
+    	
+    	txtResult.appendText("ATTORI SIMILI A: " + actor.toString() + "\n");
+    	for(Actor a : model.getConnectedActors(actor)) {
+    		txtResult.appendText(a.toString() + "\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	String genre = boxGenere.getValue();
+    	if(genre == null) {
+        	txtResult.clear();
+        	txtResult.appendText("Seleziona un genere!\n");;
+        	return ;
+    	}
+    	
+    	model.createGraph(genre);
+    	txtResult.appendText("Grafo creato!\n");;
+    	txtResult.appendText("# Vertici: " + model.vertexNumber() + "\n");
+    	txtResult.appendText("# Archi: " + model.edgeNumber() + "\n");
+    	
+    	boxAttore.getItems().clear();
+    	boxAttore.getItems().addAll(model.getActors());
     }
 
     @FXML
     void doSimulazione(ActionEvent event) {
+    	txtResult.clear();
+    	Integer n = null;
+    	try {
+    		n = Integer.parseInt(txtGiorni.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.clear();
+        	txtResult.appendText("Inserisci un valore numerico per n!\n");;
+        	return ;
+    	}
+    	
+    	model.simulate(n);
+    	
+    	txtResult.appendText("PAUSE: " + model.getPauses() + "\n\n");
+    	txtResult.appendText("ATTORI INTERVISTATI: \n");
+    	for(Actor a : model.getInterviewedActors()) {
+    		txtResult.appendText(a.toString() + "\n");
+    	}
 
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -75,5 +119,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxGenere.getItems().addAll(model.getGenres());
+    	
     }
 }

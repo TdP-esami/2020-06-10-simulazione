@@ -108,8 +108,8 @@ public class ImdbDAO {
 	
 	public List<Actor> getVerices(String genre, Map<Integer, Actor> actorsIdMap) {
 		String sql = "SELECT DISTINCT r.actor_id as id " + 
-				"FROM roles r, movies m, movies_genres mg " + 
-				"WHERE r.movie_id = m.id and mg.movie_id = m.id and mg.genre = ?";
+				"FROM roles r, movies_genres mg " + 
+				"WHERE r.movie_id = mg.movie_id and mg.genre = ?";
 		
 		List<Actor> result = new ArrayList<Actor>();
 		Connection conn = DBConnect.getConnection();
